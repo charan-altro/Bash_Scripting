@@ -6,7 +6,7 @@ The primary distinction between **scripting** and **programming languages** lies
 - **Scripting languages**: Executed directly without compilation. 
 - **Programming languages**: Require compilation before execution.
 
-**Analogy**:
+**Computer Language**:
 - **Programming Language**: Think of it as a recipe for a dish. You gather your ingredients (code), follow the recipe (compile the code), and then serve the dish (run the program). If you want to change something, you have to go back to the recipe, make changes, and cook the dish again (recompile and execute).
   
 - **Scripting Language**: This is like freestyle cooking. You add ingredients on the go, adjusting and tasting in real time (running the code immediately). If you want to modify the recipe, you don’t need to start over—you simply tweak as you go.
