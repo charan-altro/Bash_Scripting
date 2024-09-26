@@ -74,46 +74,148 @@ The structure of a scripting language can be broken down into several essential 
 ```bash
 #!/bin/bash
 
-# Function to check if the required file exists
-check_file() {
-    local file=$1
-    if [[ ! -f "$file" ]]; then
-        printf "Error: File %s not found!\n" "$file" >&2
-        return 1
+# Shebang: This line tells the system to use bash to interpret the script.
+
+# Global Variables
+LOGFILE="script.log"
+EXIT_SUCCESS=0
+EXIT_FAILURE=1
+
+# Positional Parameters: $0 is the script name, $1 and $2 are the first and second arguments passed to the script.
+SCRIPT_NAME="$0"
+FIRST_ARG="$1"
+SECOND_ARG="$2"
+
+# Example of setting and using variables
+NAME="John"
+AGE=25
+printf "Name: %s, Age: %d\n" "$NAME" "$AGE"
+
+# IFS (Internal Field Separator) usage example: 
+# Temporarily change IFS to split colon-separated values
+input="apple:banana:cherry"
+IFS=":"
+for fruit in $input; do
+    printf "Fruit: %s\n" "$fruit"
+done
+IFS=" "  # Reset IFS to default
+
+# Reading input (stdin) from the user
+printf "Enter a number: "
+read -r user_input
+printf "You entered: %s\n" "$user_input"
+
+# Output redirection: stdout and stderr
+printf "This is standard output.\n"
+printf "This is an error message.\n" >&2
+
+# Arithmetic operations
+num1=10
+num2=20
+sum=$(( num1 + num2 ))
+printf "Sum of %d and %d is %d\n" "$num1" "$num2" "$sum"
+
+# Conditional execution using if-elif-else and AND/OR logic
+if [[ $sum -eq 30 ]]; then
+    printf "The sum is exactly 30.\n"
+elif [[ $sum -gt 30 ]]; then
+    printf "The sum is greater than 30.\n"
+else
+    printf "The sum is less than 30.\n"
+fi
+
+# AND (&&) / OR (||) logic example
+if [[ $num1 -gt 5 && $num2 -lt 25 ]]; then
+    printf "num1 is greater than 5 AND num2 is less than 25.\n"
+fi
+
+if [[ $num1 -lt 5 || $num2 -gt 15 ]]; then
+    printf "Either num1 is less than 5 OR num2 is greater than 15.\n"
+fi
+
+# Example of a while loop
+counter=1
+while [[ $counter -le 5 ]]; do
+    printf "Counter is at %d\n" "$counter"
+    ((counter++))  # Increment counter
+done
+
+# For loop example
+for i in {1..3}; do
+    printf "Iteration %d of for loop.\n" "$i"
+done
+
+# Case statement example (similar to switch-case in other languages)
+case "$FIRST_ARG" in
+    start)
+        printf "Starting the process...\n"
+        ;;
+    stop)
+        printf "Stopping the process...\n"
+        ;;
+    restart)
+        printf "Restarting the process...\n"
+        ;;
+    *)
+        printf "Unknown command. Use start, stop, or restart.\n"
+        ;;
+esac
+
+# Function to check exit status of commands
+check_exit_status() {
+    if [[ $? -eq 0 ]]; then
+        printf "Command executed successfully.\n"
+    else
+        printf "Command failed with status code $?.\n" >&2
     fi
 }
 
-# Function to read ingredients (input) from a file
-get_ingredients() {
-    local ingredients_file="ingredients.txt"
-    if ! check_file "$ingredients_file"; then
-        return 1
+# Example using the exit status of a command
+mkdir -p /tmp/testdir
+check_exit_status  # Check if directory creation was successful
+
+# Demonstrating positional parameters
+printf "Script name: %s\n" "$SCRIPT_NAME"
+printf "First argument: %s\n" "$FIRST_ARG"
+printf "Second argument: %s\n" "$SECOND_ARG"
+
+# Demonstrating arrays in bash
+my_array=("apple" "banana" "cherry")
+printf "First item in the array: %s\n" "${my_array[0]}"
+printf "All items in the array: %s\n" "${my_array[@]}"
+
+# Reading multiple values using an array
+printf "Enter three space-separated fruits: "
+read -r -a fruits
+printf "You entered: %s, %s, and %s\n" "${fruits[0]}" "${fruits[1]}" "${fruits[2]}"
+
+# Return codes in functions
+return_example() {
+    local num=$1
+    if [[ $num -gt 10 ]]; then
+        return 0  # Success if num > 10
+    else
+        return 1  # Failure if num <= 10
     fi
-    printf "Reading ingredients from %s...\n" "$ingredients_file"
-    cat "$ingredients_file"
 }
 
-# Function to simulate cooking with loops
-cook_dish() {
-    local cooking_time=$1
-    for (( i = 1; i <= cooking_time; i++ )); do
-        printf "Cooking... minute %d of %d\n" "$i" "$cooking_time"
-        sleep 1
-    done
-    printf "Dish is ready!\n"
+# Check return code of the function
+return_example 15
+if [[ $? -eq 0 ]]; then
+    printf "Function returned success.\n"
+else
+    printf "Function returned failure.\n"
+fi
+
+# Logging messages to a file
+log_message() {
+    local message=$1
+    printf "%s\n" "$message" >> "$LOGFILE"
 }
 
-# Main function controlling the script flow
-main() {
-    printf "Starting the cooking process...\n"
-    
-    # Get the ingredients
-    local ingredients
-    ingredients=$(get_ingredients) || exit 1
-    
-    # Cook for 5 minutes
-    cook_dish 5
-}
+log_message "This is a log entry."
 
-# Execute the main function
-main
+# Script exit with success or failure
+exit $EXIT_SUCCESS
+
+# EOF: Marks the end of the script
